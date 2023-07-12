@@ -1,7 +1,9 @@
 package com.luv2code.springboot.demosecurity.service;
 
 import com.luv2code.springboot.demosecurity.dao.RoleDao;
+import com.luv2code.springboot.demosecurity.dao.RoleRepository;
 import com.luv2code.springboot.demosecurity.dao.UserDao;
+import com.luv2code.springboot.demosecurity.dao.UserRepository;
 import com.luv2code.springboot.demosecurity.entity.Role;
 import com.luv2code.springboot.demosecurity.entity.User;
 import com.luv2code.springboot.demosecurity.user.WebUser;
@@ -19,23 +21,23 @@ import java.util.Collection;
 @Service
 public class UserServiceImpl implements UserService {
 
-	private UserDao userDao;
+	private UserRepository userRepository;
 
-	private RoleDao roleDao;
+	private RoleRepository roleRepository;
 
 	private BCryptPasswordEncoder passwordEncoder;
 
 	@Autowired
-	public UserServiceImpl(UserDao userDao, RoleDao roleDao, BCryptPasswordEncoder passwordEncoder) {
-		this.userDao = userDao;
-		this.roleDao = roleDao;
+	public UserServiceImpl(UserRepository theUserRepository, RoleRepository theRoleRepository, BCryptPasswordEncoder passwordEncoder) {
+		this.userRepository = theUserRepository;
+		this.roleRepository = theRoleRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override
 	public User findByUserName(String userName) {
 		// check the database if the user already exists
-		return userDao.findByUserName(userName);
+		return userRepository.findByUserName(userName);
 	}
 
 	@Override
@@ -50,15 +52,15 @@ public class UserServiceImpl implements UserService {
 		user.setEmail(webUser.getEmail());
 
 		// give user default role of "employee"
-		user.setRoles(Arrays.asList(roleDao.findRoleByName("ROLE_EMPLOYEE")));
+		user.setRoles(Arrays.asList(roleRepository.findRoleByName("ROLE_EMPLOYEE")));
 
 		// save user in the database
-		userDao.save(user);
+		userRepository.save(user);
 	}
 
 	@Override
 	public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-		User user = userDao.findByUserName(userName);
+		User user = userRepository.findByUserName(userName);
 
 		if (user == null) {
 			throw new UsernameNotFoundException("Invalid username or password.");
